@@ -1,0 +1,63 @@
+### Maven ###
+target/
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### Gradle ###
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+gradle-app.setting
+gradle.properties
+
+### Logs ###
+*.log
+hs_err_pid*
+replay_pid*
+
+### IDEs ###
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# STS (Spring Tool Suite) / Eclipse
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings/
+.springBeans
+.sts4-cache
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+### Java ###
+*.class
+*.jar
+*.war
+*.ear
+
+### Node (se usar front-end junto no mesmo repo) ###
+node_modules/
+
+### Chaves / Segurança ###
+*.pem
+*.ppk
+.env
+
+### Outros ###
+HELP.md
+.mtj.tmp/
+*.bak
