@@ -1,0 +1,13 @@
+services:
+  back:
+    build: ./back
+    container_name: lockbox_back
+    env_file:
+      - ./back/.env
+    ports:
+      - "8080:8080"
+    restart: on-failure:3
+    networks:
+      - app
+networks:
+  app:
