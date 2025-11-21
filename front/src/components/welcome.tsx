@@ -51,7 +51,7 @@ const WelcomeComponent = () => {
           borderRadius: 10,
         }}
       >
-        <Image style={{ width: 30, height: 30 }} source={data.get(avatarId)} />
+        <Image style={{ width: 30, height: 30 }} source={avatars.avatar3} />
       </View>
     </View>
   );
