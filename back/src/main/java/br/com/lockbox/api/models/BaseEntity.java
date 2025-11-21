@@ -20,7 +20,7 @@ import java.time.LocalDateTime;
 @Setter
 public class BaseEntity {
   @CreatedBy
-  @Column(name = "created_by", nullable = false, updatable = false)
+  @Column(name = "created_by", updatable = false)
   private Long createdBy;
 
   @LastModifiedBy
