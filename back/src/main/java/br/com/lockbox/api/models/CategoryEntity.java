@@ -22,4 +22,8 @@ public class CategoryEntity extends BaseEntity {
 
   @OneToMany(mappedBy = "category")
   private List<VaultEntity> vaults;
+
+  @ManyToOne
+  @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+  private UserEntity user;
 }
