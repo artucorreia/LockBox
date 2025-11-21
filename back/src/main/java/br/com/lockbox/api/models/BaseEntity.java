@@ -34,4 +34,7 @@ public class BaseEntity {
   @UpdateTimestamp
   @Column(name = "updated_at", insertable = false)
   private LocalDateTime updatedAt;
+
+  @Column(nullable = false)
+  private Boolean deleted;
 }
