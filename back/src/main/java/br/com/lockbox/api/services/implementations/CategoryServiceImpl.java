@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -59,6 +60,7 @@ public class CategoryServiceImpl implements CategoryService {
     return categoryRepository.findAll();
   }
 
+  @Transactional(rollbackFor = Exception.class)
   @Override
   public void insert(CategoryEntity category) {
     log.info("Inserting a new category");
@@ -70,6 +72,7 @@ public class CategoryServiceImpl implements CategoryService {
     categoryRepository.save(category);
   }
 
+  @Transactional(rollbackFor = Exception.class)
   @Override
   public void deleteById(Long id) {
     log.info("Deleting a category by id: {}", id);

@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -45,6 +46,7 @@ public class VaultServiceImpl implements VaultService {
     return vaultRepository.findAllBy(pageable).map(vaultMapper::withoutCategoryProjectionToEntity);
   }
 
+  @Transactional(rollbackFor = Exception.class)
   @Override
   public void update(Long id, VaultEntity updatedVault) {
     log.info("Updating a vault by id: {}", id);
@@ -67,6 +69,7 @@ public class VaultServiceImpl implements VaultService {
     vaultRepository.save(vaultEntity);
   }
 
+  @Transactional(rollbackFor = Exception.class)
   @Override
   public void insert(VaultEntity newVault) {
     log.info("Inserting a new vault");
@@ -80,6 +83,7 @@ public class VaultServiceImpl implements VaultService {
     vaultRepository.save(newVault);
   }
 
+  @Transactional(rollbackFor = Exception.class)
   @Override
   public void deleteById(Long id) {
     log.info("Deleting a vault by id: {}", id);
