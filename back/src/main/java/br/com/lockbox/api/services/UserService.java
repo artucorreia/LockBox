@@ -7,5 +7,5 @@ public interface UserService {
 
   UserEntity findByEmail(String email);
 
-  void insert(UserEntity user);
+  void insert(UserEntity newUser);
 }

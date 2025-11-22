@@ -44,22 +44,22 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public void insert(UserEntity user) {
+  public void insert(UserEntity newUser) {
     log.info("Inserting a new user");
-    Optional<UserEntity> optionalUserEntity = userRepository.findByEmailIgnoreCase(user.getEmail().trim());
+    Optional<UserEntity> optionalUserEntity = userRepository.findByEmailIgnoreCase(newUser.getEmail().trim());
     if (optionalUserEntity.isPresent())
       throw new LockBoxException("This email address is already in use", HttpStatus.BAD_REQUEST);
 
-    user.setName(user.getName().trim());
-    user.setEmail(user.getEmail().trim());
-    user.setCreatedAt(LocalDateTime.now());
-    user.setDeleted(false);
-    String password = encoder.encode(user.getPassword());
-    String passwordKey = encoder.encode(user.getPasswordKey());
+    newUser.setName(newUser.getName().trim());
+    newUser.setEmail(newUser.getEmail().trim());
+    newUser.setCreatedAt(LocalDateTime.now());
+    newUser.setDeleted(false);
+    String password = encoder.encode(newUser.getPassword());
+    String passwordKey = encoder.encode(newUser.getPasswordKey());
     List<RoleEntity> roles = roleService.findByName(List.of("COMMON"));
-    user.setPassword(password);
-    user.setPasswordKey(passwordKey);
-    user.setRoles(roles);
-    userRepository.save(user);
+    newUser.setPassword(password);
+    newUser.setPasswordKey(passwordKey);
+    newUser.setRoles(roles);
+    userRepository.save(newUser);
   }
 }
