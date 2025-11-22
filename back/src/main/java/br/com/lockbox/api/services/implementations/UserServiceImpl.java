@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,6 +44,7 @@ public class UserServiceImpl implements UserService {
             () -> new LockBoxException("no user found for the given email", HttpStatus.NOT_FOUND));
   }
 
+  @Transactional(rollbackFor = Exception.class)
   @Override
   public void insert(UserEntity newUser) {
     log.info("Inserting a new user");
