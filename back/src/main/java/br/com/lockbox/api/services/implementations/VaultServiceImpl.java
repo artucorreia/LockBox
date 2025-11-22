@@ -33,7 +33,7 @@ public class VaultServiceImpl implements VaultService {
   public VaultEntity findById(Long id) {
     log.info("Finding a vault by id: {}", id);
     return vaultRepository
-        .findById(id)
+        .findByIdAndDeletedFalse(id)
         .orElseThrow(
             () -> new LockBoxException("no vault found for the given id", HttpStatus.NOT_FOUND));
   }
@@ -41,13 +41,15 @@ public class VaultServiceImpl implements VaultService {
   @Override
   public List<VaultEntity> findAll() {
     log.info("Finding all vaults");
-    return vaultRepository.findAll();
+    return vaultRepository.findByDeletedFalse();
   }
 
   @Override
   public Page<VaultEntity> findAll(Pageable pageable) {
     log.info("Finding all vaults with pagination");
-    return vaultRepository.findAllBy(pageable).map(vaultMapper::withoutCategoryProjectionToEntity);
+    return vaultRepository
+        .findAllByAndDeletedFalse(pageable)
+        .map(vaultMapper::withoutCategoryProjectionToEntity);
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -115,6 +117,7 @@ public class VaultServiceImpl implements VaultService {
   public void deleteById(Long id) {
     log.info("Deleting a vault by id: {}", id);
     VaultEntity vaultEntity = findById(id);
-    vaultRepository.delete(vaultEntity);
+    vaultEntity.setDeleted(true);
+    vaultRepository.save(vaultEntity);
   }
 }

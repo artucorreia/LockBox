@@ -30,7 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
   public CategoryEntity findById(Long id) {
     log.info("Finding a category by id: {}", id);
     return categoryRepository
-        .findById(id)
+        .findByIdAndDeletedFalse(id)
         .orElseThrow(
             () -> new LockBoxException("no category found for the given id", HttpStatus.NOT_FOUND));
   }
@@ -38,13 +38,13 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public Optional<CategoryEntity> findByName(String name) {
     log.info("Finding a category by name: {}", name);
-    return categoryRepository.findByNameIgnoreCase(name);
+    return categoryRepository.findByNameIgnoreCaseAndDeletedFalse(name);
   }
 
   @Override
   public List<CategoryEntity> findAll() {
     log.info("Finding all categories");
-    return categoryRepository.findAllBy().stream()
+    return categoryRepository.findAllByAndDeletedFalse().stream()
         .map(categoryMapper::projectionWithoutVaultsToEntity)
         .toList();
   }
@@ -53,14 +53,14 @@ public class CategoryServiceImpl implements CategoryService {
   public Page<CategoryEntity> findAll(Pageable pageable) {
     log.info("Finding all categories with pagination");
     return categoryRepository
-        .findAllBy(pageable)
+        .findAllByAndDeletedFalse(pageable)
         .map(categoryMapper::projectionWithoutVaultsToEntity);
   }
 
   @Override
   public List<CategoryEntity> findAllWithVaults() {
     log.info("Finding all categories with vaults");
-    return categoryRepository.findAll();
+    return categoryRepository.findByDeletedFalse();
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -94,6 +94,7 @@ public class CategoryServiceImpl implements CategoryService {
       throw new LockBoxException(
           "It is not possible to delete categories that have linked vaults",
           HttpStatus.BAD_REQUEST);
-    categoryRepository.delete(categoryEntity);
+    categoryEntity.setDeleted(true);
+    categoryRepository.save(categoryEntity);
   }
 }

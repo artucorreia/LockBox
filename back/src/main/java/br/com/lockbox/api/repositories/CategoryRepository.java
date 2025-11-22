@@ -10,9 +10,13 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
-  Optional<CategoryEntity> findByNameIgnoreCase(String name);
+  Optional<CategoryEntity> findByIdAndDeletedFalse(Long id);
 
-  List<CategoryWithoutVaultsProjection> findAllBy();
+  Optional<CategoryEntity> findByNameIgnoreCaseAndDeletedFalse(String name);
 
-  Page<CategoryWithoutVaultsProjection> findAllBy(Pageable pageable);
+  List<CategoryEntity> findByDeletedFalse();
+
+  List<CategoryWithoutVaultsProjection> findAllByAndDeletedFalse();
+
+  Page<CategoryWithoutVaultsProjection> findAllByAndDeletedFalse(Pageable pageable);
 }
