@@ -3,7 +3,9 @@ package br.com.lockbox.api.services.implementations;
 import br.com.lockbox.api.exceptions.LockBoxException;
 import br.com.lockbox.api.mappers.CategoryMapper;
 import br.com.lockbox.api.models.CategoryEntity;
+import br.com.lockbox.api.models.UserEntity;
 import br.com.lockbox.api.repositories.CategoryRepository;
+import br.com.lockbox.api.services.AuthenticatedUserService;
 import br.com.lockbox.api.services.CategoryService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
   private final CategoryRepository categoryRepository;
+  private final AuthenticatedUserService authenticatedUserService;
   private final CategoryMapper categoryMapper;
 
   @Override
@@ -68,7 +71,17 @@ public class CategoryServiceImpl implements CategoryService {
     if (optionalCategoryEntity.isPresent())
       throw new LockBoxException("category already exists", HttpStatus.BAD_REQUEST);
 
+    UserEntity authenticatedUser =
+        authenticatedUserService
+            .findCurrentUser()
+            .orElseThrow(
+                () ->
+                    new LockBoxException(
+                        "An error occurred while retrieving the logged-in user",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     category.setName(category.getName().trim());
+    category.setUser(authenticatedUser);
+    category.setDeleted(false);
     categoryRepository.save(category);
   }
 
