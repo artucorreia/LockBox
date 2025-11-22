@@ -77,6 +77,10 @@ public class CategoryServiceImpl implements CategoryService {
   public void deleteById(Long id) {
     log.info("Deleting a category by id: {}", id);
     CategoryEntity categoryEntity = findById(id);
+    if (!categoryEntity.getVaults().isEmpty())
+      throw new LockBoxException(
+          "It is not possible to delete categories that have linked vaults",
+          HttpStatus.BAD_REQUEST);
     categoryRepository.delete(categoryEntity);
   }
 }
