@@ -78,7 +78,6 @@ public class VaultController {
     return ResponseEntity.ok(response);
   }
 
-
   @PostMapping(
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaType.APPLICATION_JSON_VALUE)
@@ -90,7 +89,6 @@ public class VaultController {
         new ResponseDTO<>(true, "vault created successfully", HttpStatus.CREATED.value(), null);
     return ResponseEntity.status(HttpStatus.CREATED).body(response);
   }
-
 
   @PutMapping(
       value = "/{id}",
@@ -104,7 +102,6 @@ public class VaultController {
         new ResponseDTO<>(true, "vault updated successfully", HttpStatus.OK.value(), null);
     return ResponseEntity.ok(response);
   }
-
 
   @DeleteMapping(value = "/{id}")
   public ResponseEntity<ResponseDTO<VaultResponseDTO>> deleteById(@PathVariable Long id) {
