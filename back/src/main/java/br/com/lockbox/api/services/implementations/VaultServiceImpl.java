@@ -56,6 +56,9 @@ public class VaultServiceImpl implements VaultService {
     log.info("Updating a vault by id: {}", id);
     VaultEntity vaultEntity = findById(id);
 
+    boolean categoryChanged =
+        updatedVault.getCategory().getId() != null
+            && !updatedVault.getCategory().getId().equals(vaultEntity.getCategory().getId());
     boolean urlChanged =
         updatedVault.getUrl() != null && !vaultEntity.getUrl().equals(updatedVault.getUrl());
     boolean usernameChanged =
@@ -72,7 +75,11 @@ public class VaultServiceImpl implements VaultService {
     }
     if (usernameChanged) vaultEntity.setUsername(updatedVault.getUsername().trim());
     if (passwordChanged) vaultEntity.setPassword(updatedVault.getPassword().trim());
-    // TODO: update category
+    if (categoryChanged) {
+      CategoryEntity newCategoryEntity =
+          categoryService.findById(updatedVault.getCategory().getId());
+      vaultEntity.setCategory(newCategoryEntity);
+    }
 
     vaultRepository.save(vaultEntity);
   }
