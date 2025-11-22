@@ -8,25 +8,25 @@ import br.com.lockbox.api.repositories.VaultRepository;
 import br.com.lockbox.api.services.CategoryService;
 import br.com.lockbox.api.services.VaultService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.logging.Logger;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class VaultServiceImpl implements VaultService {
-  private final Logger LOGGER = Logger.getLogger(VaultServiceImpl.class.getName());
   private final VaultRepository vaultRepository;
   private final CategoryService categoryService;
   private final VaultMapper vaultMapper;
 
   @Override
   public VaultEntity findById(Long id) {
-    LOGGER.info("Finding a vault by id");
+    log.info("Finding a vault by id: {}", id);
     return vaultRepository
         .findById(id)
         .orElseThrow(() -> new LockBoxException("no vault found for the given id", HttpStatus.NOT_FOUND));
@@ -34,18 +34,19 @@ public class VaultServiceImpl implements VaultService {
 
   @Override
   public List<VaultEntity> findAll() {
-    LOGGER.info("Finding all vaults");
+    log.info("Finding all vaults");
     return vaultRepository.findAll();
   }
 
   @Override
   public Page<VaultEntity> findAll(Pageable pageable) {
-    LOGGER.info("Finding all vaults with pagination");
+    log.info("Finding all vaults with pagination");
     return vaultRepository.findAllBy(pageable).map(vaultMapper::withoutCategoryProjectionToEntity);
   }
 
   @Override
   public void update(Long id, VaultEntity updatedVault) {
+    log.info("Updating a vault by id: {}", id);
     VaultEntity vaultEntity = findById(id);
 
     boolean urlChanged =
@@ -67,8 +68,7 @@ public class VaultServiceImpl implements VaultService {
 
   @Override
   public void insert(VaultEntity newVault) {
-    LOGGER.info("Inserting a new vault");
-
+    log.info("Inserting a new vault");
     CategoryEntity categoryEntity = categoryService.findById(newVault.getCategory().getId());
     newVault.setCategory(categoryEntity);
     // TODO: add http in url
@@ -81,7 +81,7 @@ public class VaultServiceImpl implements VaultService {
 
   @Override
   public void deleteById(Long id) {
-    LOGGER.info("Deleting a vault by id");
+    log.info("Deleting a vault by id: {}", id);
     VaultEntity vaultEntity = findById(id);
     vaultRepository.delete(vaultEntity);
   }
