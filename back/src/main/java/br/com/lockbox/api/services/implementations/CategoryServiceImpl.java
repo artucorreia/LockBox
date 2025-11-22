@@ -27,7 +27,8 @@ public class CategoryServiceImpl implements CategoryService {
     log.info("Finding a category by id: {}", id);
     return categoryRepository
         .findById(id)
-        .orElseThrow(() -> new LockBoxException("no category found for the given id", HttpStatus.NOT_FOUND));
+        .orElseThrow(
+            () -> new LockBoxException("no category found for the given id", HttpStatus.NOT_FOUND));
   }
 
   @Override
@@ -62,7 +63,8 @@ public class CategoryServiceImpl implements CategoryService {
   public void insert(CategoryEntity category) {
     log.info("Inserting a new category");
     Optional<CategoryEntity> optionalCategoryEntity = findByName(category.getName().trim());
-    if (optionalCategoryEntity.isPresent()) throw new LockBoxException("category already exists", HttpStatus.BAD_REQUEST);
+    if (optionalCategoryEntity.isPresent())
+      throw new LockBoxException("category already exists", HttpStatus.BAD_REQUEST);
 
     category.setName(category.getName().trim());
     categoryRepository.save(category);

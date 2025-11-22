@@ -29,7 +29,8 @@ public class VaultServiceImpl implements VaultService {
     log.info("Finding a vault by id: {}", id);
     return vaultRepository
         .findById(id)
-        .orElseThrow(() -> new LockBoxException("no vault found for the given id", HttpStatus.NOT_FOUND));
+        .orElseThrow(
+            () -> new LockBoxException("no vault found for the given id", HttpStatus.NOT_FOUND));
   }
 
   @Override
