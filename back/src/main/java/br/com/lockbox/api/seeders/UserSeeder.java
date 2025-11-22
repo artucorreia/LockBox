@@ -7,6 +7,7 @@ import br.com.lockbox.api.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -20,7 +21,7 @@ import java.util.List;
 public class UserSeeder implements Seeder {
   private final UserRepository userRepository;
   private final RoleRepository roleRepository;
-  private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+  private final PasswordEncoder encoder = new BCryptPasswordEncoder();
 
   @Override
   public void run() {
@@ -42,7 +43,7 @@ public class UserSeeder implements Seeder {
     firstUser.setEmail("arthurcorreia.dev@gmail.com");
     firstUser.setRoles(roles);
     firstUser.setPassword(encoder.encode("12345678"));
-    firstUser.setPasswordKey("123");
+    firstUser.setPasswordKey(encoder.encode("0109"));
     firstUser.setCreatedAt(LocalDateTime.now());
     firstUser.setDeleted(false);
     return new ArrayList<>(List.of(firstUser));

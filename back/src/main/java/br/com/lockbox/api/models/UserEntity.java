@@ -28,10 +28,10 @@ public class UserEntity extends BaseEntity {
   @Column(nullable = false, length = 100)
   private String password;
 
-  @Column(name = "password_key", nullable = false, length = 50)
+  @Column(name = "password_key", nullable = false, length = 100)
   private String passwordKey;
 
-  @ManyToMany(mappedBy = "users")
+  @ManyToMany(mappedBy = "users", fetch = FetchType.EAGER)
   private List<RoleEntity> roles;
 
   @OneToMany(mappedBy = "user")

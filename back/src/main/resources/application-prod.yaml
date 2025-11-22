@@ -1,6 +1,12 @@
 server:
   port: 8080
 
+security:
+  token:
+    issuer: ${TOKEN_ISSUER}
+    secret: ${TOKEN_SECRET}
+    duration: ${TOKEN_DURATION}
+
 spring:
   application:
     name: LockBox API
