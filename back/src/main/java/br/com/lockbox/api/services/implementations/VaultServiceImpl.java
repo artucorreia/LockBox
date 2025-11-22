@@ -3,8 +3,10 @@ package br.com.lockbox.api.services.implementations;
 import br.com.lockbox.api.exceptions.LockBoxException;
 import br.com.lockbox.api.mappers.VaultMapper;
 import br.com.lockbox.api.models.CategoryEntity;
+import br.com.lockbox.api.models.UserEntity;
 import br.com.lockbox.api.models.VaultEntity;
 import br.com.lockbox.api.repositories.VaultRepository;
+import br.com.lockbox.api.services.AuthenticatedUserService;
 import br.com.lockbox.api.services.CategoryService;
 import br.com.lockbox.api.services.VaultService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Slf4j
@@ -23,6 +26,7 @@ import java.util.List;
 public class VaultServiceImpl implements VaultService {
   private final VaultRepository vaultRepository;
   private final CategoryService categoryService;
+  private final AuthenticatedUserService authenticatedUserService;
   private final VaultMapper vaultMapper;
 
   @Override
@@ -77,6 +81,14 @@ public class VaultServiceImpl implements VaultService {
   @Override
   public void insert(VaultEntity newVault) {
     log.info("Inserting a new vault");
+    UserEntity authenticatedUser =
+        authenticatedUserService
+            .findCurrentUser()
+            .orElseThrow(
+                () ->
+                    new LockBoxException(
+                        "An error occurred while retrieving the logged-in user",
+                        HttpStatus.INTERNAL_SERVER_ERROR));
     CategoryEntity categoryEntity = categoryService.findById(newVault.getCategory().getId());
     newVault.setCategory(categoryEntity);
     boolean containsHttp =
@@ -85,7 +97,9 @@ public class VaultServiceImpl implements VaultService {
     newVault.setUrl(newVault.getUrl().trim());
     newVault.setUsername(newVault.getUsername().trim());
     newVault.setPassword(newVault.getPassword().trim());
-
+    newVault.setDeleted(false);
+    newVault.setCreatedAt(LocalDateTime.now());
+    newVault.setUser(authenticatedUser);
     vaultRepository.save(newVault);
   }
 
