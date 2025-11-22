@@ -60,8 +60,12 @@ public class VaultServiceImpl implements VaultService {
     boolean passwordChanged =
         updatedVault.getPassword() != null
             && !vaultEntity.getPassword().equals(updatedVault.getPassword());
-
-    if (urlChanged) vaultEntity.setUrl(updatedVault.getUrl().trim());
+    if (urlChanged) {
+      boolean containsHttp =
+          updatedVault.getUrl().contains("http://") || updatedVault.getUrl().contains("https://");
+      if (!containsHttp) updatedVault.setUrl("https://" + updatedVault.getUrl());
+      vaultEntity.setUrl(updatedVault.getUrl().trim());
+    }
     if (usernameChanged) vaultEntity.setUsername(updatedVault.getUsername().trim());
     if (passwordChanged) vaultEntity.setPassword(updatedVault.getPassword().trim());
     // TODO: update category
@@ -75,7 +79,9 @@ public class VaultServiceImpl implements VaultService {
     log.info("Inserting a new vault");
     CategoryEntity categoryEntity = categoryService.findById(newVault.getCategory().getId());
     newVault.setCategory(categoryEntity);
-    // TODO: add http in url
+    boolean containsHttp =
+        newVault.getUrl().contains("http://") || newVault.getUrl().contains("https://");
+    if (!containsHttp) newVault.setUrl("https://" + newVault.getUrl());
     newVault.setUrl(newVault.getUrl().trim());
     newVault.setUsername(newVault.getUsername().trim());
     newVault.setPassword(newVault.getPassword().trim());
