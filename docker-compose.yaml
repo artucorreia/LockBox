@@ -9,5 +9,6 @@ services:
     restart: on-failure:3
     networks:
       - app
+    command: ["--seed"]
 networks:
   app:
