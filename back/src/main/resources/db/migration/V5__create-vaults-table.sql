@@ -1,0 +1,13 @@
+CREATE TABLE IF NOT EXISTS vaults(
+    id SERIAL PRIMARY KEY NOT NULL,
+    url VARCHAR(255) NOT NULL,
+    username VARCHAR(100) NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    category_id BIGINT REFERENCES categories(id) NOT NULL,
+    user_id BIGINT REFERENCES users(id) NOT NULL,
+    created_by BIGINT,
+    updated_by BIGINT DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at TIMESTAMP DEFAULT NULL,
+    deleted BOOLEAN DEFAULT FALSE NOT NULL
+);

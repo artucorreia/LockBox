@@ -10,13 +10,16 @@ security:
 spring:
   application:
     name: LockBox API
-  h2:
-    console:
-      enabled: true
   datasource:
-    url: jdbc:h2:mem:lockbox
-    username: sa
-    password:
-    driverClassName: org.h2.Driver
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+    driverClassName: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    open-in-view: false
+    hibernate:
+      ddl-auto: none
+    show-sql: false
+  flyway:
+    locations: classpath:db/migration
+    ignore-migration-patterns: '*:missing'
