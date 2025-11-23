@@ -20,7 +20,7 @@ public class CategoryEntity extends BaseEntity {
   @Column(nullable = false, length = 12)
   private String name;
 
-  @OneToMany(mappedBy = "category")
+  @OneToMany(mappedBy = "category", fetch = FetchType.EAGER)
   private List<VaultEntity> vaults;
 
   @ManyToOne
