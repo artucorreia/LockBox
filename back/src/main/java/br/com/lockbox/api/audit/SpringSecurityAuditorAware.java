@@ -11,13 +11,12 @@ import java.util.Optional;
 public class SpringSecurityAuditorAware implements AuditorAware<Long> {
   @Override
   public Optional<Long> getCurrentAuditor() {
-    Optional<UserEntity> userEntity =
-        Optional.ofNullable(SecurityContextHolder.getContext())
-            .map(SecurityContext::getAuthentication)
-            .filter(Authentication::isAuthenticated)
-            .map(Authentication::getPrincipal)
-            .map(UserEntity.class::cast);
-
-    return userEntity.map(UserEntity::getId);
+    return Optional.ofNullable(SecurityContextHolder.getContext())
+        .map(SecurityContext::getAuthentication)
+        .filter(Authentication::isAuthenticated)
+        .map(Authentication::getPrincipal)
+        .filter(principal -> principal instanceof UserEntity)
+        .map(principal -> (UserEntity) principal)
+        .map(UserEntity::getId);
   }
 }
