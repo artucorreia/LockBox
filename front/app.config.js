@@ -1,0 +1,41 @@
+// 1. Instale e importe o dotenv
+module.exports = ({ config }) => {
+  return {
+    ...config,
+    extra: {},
+    expo: {
+      name: 'LockBox',
+      slug: 'LockBox',
+      version: '1.0.0',
+      orientation: 'portrait',
+      icon: './assets/images/icon.png',
+      scheme: 'lockbox',
+      userInterfaceStyle: 'automatic',
+      newArchEnabled: true,
+      splash: {
+        image: './assets/images/splash-icon.png',
+        resizeMode: 'contain',
+        backgroundColor: '#ffffff',
+      },
+      ios: {
+        supportsTablet: true,
+      },
+      android: {
+        adaptiveIcon: {
+          foregroundImage: './assets/images/adaptive-icon.png',
+          backgroundColor: '#ffffff',
+        },
+        edgeToEdgeEnabled: true,
+      },
+      web: {
+        bundler: 'metro',
+        output: 'static',
+        favicon: './assets/images/favicon.png',
+      },
+      plugins: ['expo-router', 'expo-font', 'expo-web-browser'],
+      experiments: {
+        typedRoutes: true,
+      },
+    },
+  }
+}

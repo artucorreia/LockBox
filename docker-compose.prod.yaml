@@ -1,0 +1,38 @@
+services:
+  db:
+    image: postgres:17-alpine
+    container_name: lockbox_db
+    env_file:
+      - ./.env
+    ports:
+      - "5433:5432"
+    volumes:
+      - lockbox_db_data:/var/lib/postgresql/data
+    restart: always
+    networks:
+      - app
+  adminer:
+    image: adminer
+    container_name: lockbox_adminer
+    restart: always
+    ports:
+      - 8082:8080
+    networks:
+      - app
+  back:
+    build: ./back
+    container_name: lockbox_back
+    env_file:
+      - ./back/.env
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - app
+    command: ["--seed"]
+
+volumes:
+  lockbox_db_data:
+
+networks:
+  app:

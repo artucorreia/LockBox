@@ -1,0 +1,24 @@
+server:
+  port: 8080
+
+security:
+  token:
+    issuer: ${TOKEN_ISSUER:LockBox}
+    secret: ${TOKEN_SECRET:secret}
+    duration: ${TOKEN_DURATION:15m}
+
+spring:
+  application:
+    name: LockBox API
+  h2:
+    console:
+      enabled: true
+  datasource:
+    url: jdbc:h2:mem:lockbox
+    username: sa
+    password:
+    driverClassName: org.h2.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+  flyway:
+    enabled: false
