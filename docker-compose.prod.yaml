@@ -29,6 +29,7 @@ services:
     restart: always
     networks:
       - app
+    command: ["--seed"]
 
 volumes:
   lockbox_db_data:
