@@ -25,7 +25,7 @@ const LoginPage = () => {
       try {
         const response = await api.post<ApiResponse<Token>>(
           '/auth/login',
-          data,
+          data
         );
         const token: string = response.data?.token || '';
         const username: string = response.data?.userName || '';
@@ -179,28 +179,6 @@ const LoginPage = () => {
             </Text>
           </Pressable>
         </View>
-        {/* <Pressable
-          style={({ pressed }) => [
-            {
-              backgroundColor: '#6c63ff',
-              width: '100%',
-              alignItems: 'center',
-              paddingVertical: 10,
-              borderRadius: 10,
-              opacity: pressed ? 0.9 : 1,
-            },
-          ]}
-          onPress={() => router.push('/(auth)/welcome')}
-        >
-          <Text
-            style={{
-              color: '#fff',
-              fontWeight: '800',
-            }}
-          >
-            create account
-          </Text>
-        </Pressable> */}
       </View>
     </View>
   );
