@@ -7,7 +7,7 @@ export default class Api {
 
   constructor() {
     this.url = axios.create({
-      baseURL: 'http://192.168.2.180:8080/api', // replace ip
+      baseURL: 'http://10.1.25.72:8080/api', // replace ip
       timeout: 20000,
       headers: {
         'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ export default class Api {
           router.push('/(auth)/login');
         }
         return Promise.reject(error);
-      },
+      }
     );
   }
 
@@ -45,6 +45,10 @@ export default class Api {
     // TODO: remove
     console.log(object);
     return await this.url.post(url, object).then((data) => this.getData(data));
+  }
+
+  public async delete<T>(url: string): Promise<T> {
+    return await this.url.delete(url).then((data) => this.getData(data));
   }
 
   private getData<T>(response: AxiosResponse<T>): T {
