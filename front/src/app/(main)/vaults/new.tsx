@@ -76,7 +76,7 @@ const NewVaultPage = () => {
             right: '5%',
           },
         ]}
-        onPress={() => router.push('/(main)/categories')}
+        onPress={() => router.push('/(main)/vaults')}
       >
         <Text
           style={{
