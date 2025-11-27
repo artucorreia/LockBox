@@ -5,18 +5,21 @@ import br.com.lockbox.api.repositories.projections.CategoryWithoutVaultsProjecti
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
-  Optional<CategoryEntity> findByIdAndDeletedFalse(Long id);
+  Optional<CategoryEntity> findByIdAndDeletedFalseAndUserId(Long id, Long userId);
 
-  Optional<CategoryEntity> findByNameIgnoreCaseAndDeletedFalse(String name);
+  Optional<CategoryEntity> findByNameIgnoreCaseAndUserIdAndDeletedFalse(String name, Long userId);
 
-  List<CategoryEntity> findByDeletedFalse();
+  List<CategoryEntity> findByUserIdAndDeletedFalse(Long userId);
 
-  List<CategoryWithoutVaultsProjection> findAllByAndDeletedFalse();
+  List<CategoryWithoutVaultsProjection> findAllByUserIdAndDeletedFalse(Long userId);
 
-  Page<CategoryWithoutVaultsProjection> findAllByAndDeletedFalse(Pageable pageable);
+  Page<CategoryWithoutVaultsProjection> findAllByUserIdAndDeletedFalse(
+      Long userId, Pageable pageable);
 }

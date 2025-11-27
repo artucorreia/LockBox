@@ -28,7 +28,7 @@ public class CategoryController {
   private final CategoryMapper categoryMapper;
 
   @GetMapping(value = "/{id}/vaults", produces = MediaType.APPLICATION_JSON_VALUE)
-  public ResponseEntity<ResponseDTO<CategoryWithVaultsResponseDTO>> findById(@PathVariable Long id) {
+  public ResponseEntity<ResponseDTO<CategoryWithVaultsResponseDTO>> findVaultsById(@PathVariable Long id) {
     CategoryEntity categoryEntity = categoryService.findById(id);
     CategoryWithVaultsResponseDTO categoryResponseDTO = categoryMapper.entityToWithVaultsResponseDTO(categoryEntity);
     ResponseDTO<CategoryWithVaultsResponseDTO> response =

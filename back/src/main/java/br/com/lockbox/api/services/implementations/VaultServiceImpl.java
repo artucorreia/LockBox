@@ -32,8 +32,9 @@ public class VaultServiceImpl implements VaultService {
   @Override
   public VaultEntity findById(Long id) {
     log.info("Finding a vault by id: {}", id);
+    Long authenticatedUserId = findAuthenticatedUserId();
     return vaultRepository
-        .findByIdAndDeletedFalse(id)
+        .findByIdAndDeletedFalseAndUserId(id, authenticatedUserId)
         .orElseThrow(
             () -> new LockBoxException("no vault found for the given id", HttpStatus.NOT_FOUND));
   }
@@ -41,14 +42,16 @@ public class VaultServiceImpl implements VaultService {
   @Override
   public List<VaultEntity> findAll() {
     log.info("Finding all vaults");
-    return vaultRepository.findByDeletedFalse();
+    Long authenticatedUserId = findAuthenticatedUserId();
+    return vaultRepository.findByUserIdAndDeletedFalse(authenticatedUserId);
   }
 
   @Override
   public Page<VaultEntity> findAll(Pageable pageable) {
     log.info("Finding all vaults with pagination");
+    Long authenticatedUserId = findAuthenticatedUserId();
     return vaultRepository
-        .findAllByAndDeletedFalse(pageable)
+        .findAllByUserIdAndDeletedFalse(authenticatedUserId, pageable)
         .map(vaultMapper::withoutCategoryProjectionToEntity);
   }
 
@@ -90,14 +93,7 @@ public class VaultServiceImpl implements VaultService {
   @Override
   public void insert(VaultEntity newVault) {
     log.info("Inserting a new vault");
-    UserEntity authenticatedUser =
-        authenticatedUserService
-            .findCurrentUser()
-            .orElseThrow(
-                () ->
-                    new LockBoxException(
-                        "An error occurred while retrieving the logged-in user",
-                        HttpStatus.INTERNAL_SERVER_ERROR));
+    UserEntity authenticatedUser = findAuthenticatedUser();
     CategoryEntity categoryEntity = categoryService.findById(newVault.getCategory().getId());
     newVault.setCategory(categoryEntity);
     boolean containsHttp =
@@ -119,5 +115,25 @@ public class VaultServiceImpl implements VaultService {
     VaultEntity vaultEntity = findById(id);
     vaultEntity.setDeleted(true);
     vaultRepository.save(vaultEntity);
+  }
+
+  private UserEntity findAuthenticatedUser() {
+    return authenticatedUserService
+        .findCurrentUser()
+        .orElseThrow(
+            () ->
+                new LockBoxException(
+                    "An error occurred while retrieving the logged-in user",
+                    HttpStatus.INTERNAL_SERVER_ERROR));
+  }
+
+  private Long findAuthenticatedUserId() {
+    return authenticatedUserService
+        .findCurrentUserId()
+        .orElseThrow(
+            () ->
+                new LockBoxException(
+                    "An error occurred while retrieving the logged-in user",
+                    HttpStatus.INTERNAL_SERVER_ERROR));
   }
 }

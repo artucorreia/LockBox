@@ -29,8 +29,9 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public CategoryEntity findById(Long id) {
     log.info("Finding a category by id: {}", id);
+    Long authenticatedUserId = findAuthenticatedUserId();
     return categoryRepository
-        .findByIdAndDeletedFalse(id)
+        .findByIdAndDeletedFalseAndUserId(id, authenticatedUserId)
         .orElseThrow(
             () -> new LockBoxException("no category found for the given id", HttpStatus.NOT_FOUND));
   }
@@ -38,13 +39,15 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public Optional<CategoryEntity> findByName(String name) {
     log.info("Finding a category by name: {}", name);
-    return categoryRepository.findByNameIgnoreCaseAndDeletedFalse(name);
+    Long authenticatedUserId = findAuthenticatedUserId();
+    return categoryRepository.findByNameIgnoreCaseAndUserIdAndDeletedFalse(name, authenticatedUserId);
   }
 
   @Override
   public List<CategoryEntity> findAll() {
     log.info("Finding all categories");
-    return categoryRepository.findAllByAndDeletedFalse().stream()
+    Long authenticatedUserId = findAuthenticatedUserId();
+    return categoryRepository.findAllByUserIdAndDeletedFalse(authenticatedUserId).stream()
         .map(categoryMapper::projectionWithoutVaultsToEntity)
         .toList();
   }
@@ -52,15 +55,17 @@ public class CategoryServiceImpl implements CategoryService {
   @Override
   public Page<CategoryEntity> findAll(Pageable pageable) {
     log.info("Finding all categories with pagination");
+    Long authenticatedUserId = findAuthenticatedUserId();
     return categoryRepository
-        .findAllByAndDeletedFalse(pageable)
+        .findAllByUserIdAndDeletedFalse(authenticatedUserId, pageable)
         .map(categoryMapper::projectionWithoutVaultsToEntity);
   }
 
   @Override
   public List<CategoryEntity> findAllWithVaults() {
     log.info("Finding all categories with vaults");
-    return categoryRepository.findByDeletedFalse();
+    Long authenticatedUserId = findAuthenticatedUserId();
+    return categoryRepository.findByUserIdAndDeletedFalse(authenticatedUserId);
   }
 
   @Transactional(rollbackFor = Exception.class)
@@ -71,14 +76,7 @@ public class CategoryServiceImpl implements CategoryService {
     if (optionalCategoryEntity.isPresent())
       throw new LockBoxException("category already exists", HttpStatus.BAD_REQUEST);
 
-    UserEntity authenticatedUser =
-        authenticatedUserService
-            .findCurrentUser()
-            .orElseThrow(
-                () ->
-                    new LockBoxException(
-                        "An error occurred while retrieving the logged-in user",
-                        HttpStatus.INTERNAL_SERVER_ERROR));
+    UserEntity authenticatedUser = findAuthenticatedUser();
     category.setName(category.getName().trim());
     category.setUser(authenticatedUser);
     category.setDeleted(false);
@@ -96,5 +94,25 @@ public class CategoryServiceImpl implements CategoryService {
           HttpStatus.BAD_REQUEST);
     categoryEntity.setDeleted(true);
     categoryRepository.save(categoryEntity);
+  }
+
+  private UserEntity findAuthenticatedUser() {
+    return authenticatedUserService
+        .findCurrentUser()
+        .orElseThrow(
+            () ->
+                new LockBoxException(
+                    "An error occurred while retrieving the logged-in user",
+                    HttpStatus.INTERNAL_SERVER_ERROR));
+  }
+
+  private Long findAuthenticatedUserId() {
+    return authenticatedUserService
+        .findCurrentUserId()
+        .orElseThrow(
+            () ->
+                new LockBoxException(
+                    "An error occurred while retrieving the logged-in user",
+                    HttpStatus.INTERNAL_SERVER_ERROR));
   }
 }
