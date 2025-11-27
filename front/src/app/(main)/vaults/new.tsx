@@ -1,9 +1,11 @@
 import { View, Text, Pressable, TextInput, Alert } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
+import { Picker } from '@react-native-picker/picker';
 import { router } from 'expo-router';
-import api from '@/src/services/api';
+import Api from '@/src/services/Api';
 import ApiResponse from '@/src/types/ApiResponse';
+import Category from '@/src/types/Category';
 
 type FormData = {
   url: string;
@@ -13,27 +15,43 @@ type FormData = {
 };
 
 const NewVaultPage = () => {
+  const api = new Api();
+  const [categories, setCategories] = useState<Category[]>();
   const {
     control,
     handleSubmit,
     formState: { errors },
   } = useForm<FormData>();
 
-  const onSubmit: SubmitHandler<FormData> = (data) => {
-    api
-      .post<ApiResponse>('/vaults', data)
-      .then((response) => {
-        if (response.data.success) {
-          Alert.alert('Success', 'category created successfully');
-          router.push('/vaults');
-          return;
-        }
+  useEffect(() => {
+    const process = async () => {
+      try {
+        const categoriesResponse: ApiResponse<Category[]> = await api.get(
+          '/v1/categories',
+        );
+        setCategories(categoriesResponse.data);
+      } catch (error) {
+        Alert.alert('Error', 'An unexpected error occurred');
+      }
+    };
 
-        Alert.alert('Error', 'error creating category');
-        router.push('/vaults');
-        return;
-      })
-      .catch((error) => console.log(error));
+    process();
+    console.log(categories);
+  }, []);
+
+  const onSubmit: SubmitHandler<FormData> = (data) => {
+    const process = async (data: FormData) => {
+      try {
+        await api.post<ApiResponse<null>>('/v1/vaults', data);
+        Alert.alert('Success', 'Vault created successfully');
+      } catch (error) {
+        Alert.alert('Error', 'error creating vault');
+      } finally {
+        router.push('/(main)/vaults');
+      }
+    };
+
+    process(data);
   };
 
   return (
@@ -204,39 +222,50 @@ const NewVaultPage = () => {
             <Text style={{ color: '#FF2056' }}>{errors.password.message}</Text>
           )}
         </View>
-        <View>
-          <View
-            style={{
-              borderWidth: 1,
-              width: '100%',
-              borderColor: '#e9e9e9',
-              paddingHorizontal: 12,
-              paddingVertical: 4,
-              borderRadius: 12,
+        <View
+          style={{
+            borderWidth: 1,
+            width: '100%',
+            borderColor: '#e9e9e9',
+            paddingHorizontal: 12,
+            borderRadius: 12,
+          }}
+        >
+          <Controller
+            control={control}
+            name="categoryId"
+            rules={{
+              required: 'category field is mandatory',
             }}
-          >
-            <Controller
-              control={control}
-              name="categoryId"
-              rules={{
-                required: 'category id filed is mandatory',
-              }}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  secureTextEntry={true}
-                  style={{ width: '100%' }}
-                  maxLength={5}
-                  placeholder="Category Id"
-                  value={value}
-                  onChangeText={onChange}
+            render={({ field: { onChange, value } }) => (
+              <Picker
+                selectedValue={value}
+                onValueChange={(val) => onChange(val)}
+                style={{ width: '100%' }}
+              >
+                <Picker.Item
+                  label="Category"
+                  style={{ color: '#999' }}
+                  value={null}
+                  enabled={false}
                 />
-              )}
-            />
-          </View>
-          {errors.categoryId && (
-            <Text style={{ color: '#FF2056' }}>{errors.categoryId.message}</Text>
-          )}
+
+                {categories?.map((category) => (
+                  <Picker.Item
+                    key={category.id}
+                    label={category.name}
+                    value={category.id}
+                  />
+                ))}
+              </Picker>
+            )}
+          />
         </View>
+
+        {errors.categoryId && (
+          <Text style={{ color: '#FF2056' }}>{errors.categoryId.message}</Text>
+        )}
+
         <Pressable
           style={({ pressed }) => [
             {

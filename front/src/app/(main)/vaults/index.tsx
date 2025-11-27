@@ -1,11 +1,11 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 // api
-import api from '@/src/services/api';
+import Api from '@/src/services/Api';
 
 // svgs
 import NoVaults from '@/assets/images/svg/no-vaults.svg';
@@ -17,15 +17,26 @@ import Category from '@/src/types/Category';
 import AddButtonComponent from '@/src/components/addButton';
 import WelcomeComponent from '@/src/components/welcome';
 import SearchComponent from '@/src/components/search';
+import ApiResponse from '@/src/types/ApiResponse';
+import Vault from '@/src/types/Vault';
 
 const VaultPage = () => {
+  const api = new Api();
   const [vaultsGrouped, setVaultsGrouped] = useState<Category[]>();
 
   useEffect(() => {
-    api
-      .get('/vaults/grouped')
-      .then((response) => setVaultsGrouped(response.data.data))
-      .catch((error) => console.error('vaults error: ', error));
+    const process = async () => {
+      try {
+        const vaultsResponse: ApiResponse<Vault[]> = await api.get(
+          '/v1/vaults/grouped',
+        );
+        setVaultsGrouped(vaultsResponse.data);
+      } catch (error) {
+        Alert.alert('Error', 'An unexpected error occurred');
+      }
+    };
+
+    process();
   }, []);
 
   return (
@@ -41,7 +52,7 @@ const VaultPage = () => {
       <View style={{ paddingTop: 5, paddingBottom: 20 }}>
         <WelcomeComponent />
       </View>
-      <SearchComponent />
+      <SearchComponent placeholder={'Search for vaults'} />
 
       <ScrollView
         showsVerticalScrollIndicator={false}

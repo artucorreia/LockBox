@@ -1,11 +1,11 @@
-import { Text, View } from 'react-native';
+import { Alert, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'expo-router';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 // api
-import api from '../../../services/api';
+import Api from '@/src/services/Api';
 
 // types
 import Category from '../../../types/Category';
@@ -15,20 +15,30 @@ import Vault from '../../../types/Vault';
 import WelcomeComponent from '../../../components/welcome';
 import SearchComponent from '../../../components/search';
 import CategoryCarouselComponent from '../../../components/categoryCarousel';
+import ApiResponse from '@/src/types/ApiResponse';
 
 const HomePage = () => {
   const [categories, setCategories] = useState<Category[]>();
   const [vaults, setVaults] = useState<Vault[]>();
+  const api = new Api();
 
   useEffect(() => {
-    api
-      .get('/categories?size=4&direction=desc&pagination=true')
-      .then((response) => setCategories(response.data.data))
-      .catch((error) => console.error('categories error: ', error));
-    api
-      .get('/vaults?pagination=true&page=0&size=5&direction=asc')
-      .then((response) => setVaults(response.data.data))
-      .catch((error) => console.error('vaults error: ', error));
+    const process = async () => {
+      try {
+        const categoriesResponse: ApiResponse<Category[]> = await api.get(
+          '/v1/categories?size=4&direction=desc&pagination=true',
+        );
+        setCategories(categoriesResponse.data);
+        const vaultsResponse: ApiResponse<Vault[]> = await api.get(
+          '/v1/vaults?pagination=true&page=0&size=5&direction=asc',
+        );
+        setVaults(vaultsResponse.data);
+      } catch (error) {
+        Alert.alert('Error', 'An unexpected error occurred');
+      }
+    };
+
+    process();
   }, []);
 
   return (

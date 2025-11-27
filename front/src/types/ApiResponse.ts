@@ -1,9 +1,6 @@
-import Category from './Category';
-import Vault from './Vault';
-
-export default interface ApiResponse {
+export default interface ApiResponse<T> {
   success: boolean;
   code: number;
   message?: string;
-  data?: Vault | Vault[] | Category | Category[];
+  data?: T;
 }
