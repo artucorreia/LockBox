@@ -32,11 +32,15 @@ const RootLayout = () => {
         {/* Vaults */}
         <Stack.Screen
           name="vaults/index"
-          options={{ title: 'Vault', headerShown: false }}
+          options={{ title: 'Vaults', headerShown: false }}
         />
         <Stack.Screen
           name="vaults/new"
           options={{ title: 'New Vault', headerShown: false }}
+        />
+        <Stack.Screen
+          name="vaults/show"
+          options={{ title: 'Vault', headerShown: false }}
         />
 
         {/* Categories */}

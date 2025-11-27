@@ -22,13 +22,16 @@ import Vault from '@/src/types/Vault';
 
 const VaultPage = () => {
   const api = new Api();
+  const [searchTerm, setSearchTerm] = useState<string>();
   const [vaultsGrouped, setVaultsGrouped] = useState<Category[]>();
+
+  const handleInputChange = (value: string) => setSearchTerm(value);
 
   useEffect(() => {
     const process = async () => {
       try {
         const vaultsResponse: ApiResponse<Vault[]> = await api.get(
-          '/v1/vaults/grouped',
+          '/v1/vaults/grouped'
         );
         setVaultsGrouped(vaultsResponse.data);
       } catch (error) {
@@ -52,7 +55,10 @@ const VaultPage = () => {
       <View style={{ paddingTop: 5, paddingBottom: 20 }}>
         <WelcomeComponent />
       </View>
-      <SearchComponent placeholder={'Search for vaults'} />
+      <SearchComponent
+        placeholder="Search for vaults"
+        onInputChange={handleInputChange}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -71,8 +77,14 @@ const VaultPage = () => {
               </Text>
               {element.vaults && element.vaults.length > 0 ? (
                 element.vaults.map((element) => (
-                  <View
+                  <Pressable
                     key={element.id}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(main)/vaults/show',
+                        params: { id: element.id },
+                      })
+                    }
                     style={{
                       width: '100%',
                       height: 100,
@@ -117,7 +129,7 @@ const VaultPage = () => {
                           {element.username}
                         </Text>
                         <Text style={{ color: '#888', fontSize: 12 }}>
-                          {element.password}
+                          {element.url}
                         </Text>
                       </View>
                     </View>
@@ -127,7 +139,7 @@ const VaultPage = () => {
                       iconStyle="solid"
                       size={22}
                     />
-                  </View>
+                  </Pressable>
                 ))
               ) : (
                 <Text style={{ paddingVertical: 10 }}>No vaults...</Text>
