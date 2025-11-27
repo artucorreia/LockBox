@@ -1,8 +1,9 @@
-import { Alert, Image, Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WelcomeComponent from '@/src/components/welcome';
 import SearchComponent from '@/src/components/search';
+import CategoryModalComponent from '@/src/components/categoryModal';
 import Category from '../../../types/Category';
 
 import Api from '@/src/services/Api';
@@ -13,7 +14,7 @@ import NoCategories from '@/assets/images/svg/no-categories.svg';
 import { router } from 'expo-router';
 import ApiResponse from '@/src/types/ApiResponse';
 
-const CategoryPage = () => {
+const AllCategoriesPage = () => {
   const api = new Api();
   const [searchTerm, setSearchTerm] = useState<string>();
   const [categories, setCategories] = useState<Category[]>();
@@ -30,7 +31,7 @@ const CategoryPage = () => {
     const process = async () => {
       try {
         const categoriesResponse: ApiResponse<Category[]> = await api.get(
-          '/v1/categories',
+          '/v1/categories'
         );
         setCategories(categoriesResponse.data);
       } catch (error) {
@@ -40,6 +41,19 @@ const CategoryPage = () => {
 
     process();
   }, []);
+  const deleteCategory = async (id?: number) => {
+    if (!id) {
+      Alert.alert('Error', 'An unexpected error occurred');
+    }
+    try {
+      await api.delete(`/v1/categories/${id}`);
+      Alert.alert('Success', 'Category deleted successfully');
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred');
+    } finally {
+      router.push('/(main)/categories');
+    }
+  };
 
   const filteredCategories = useMemo(() => {
     if (!searchTerm?.trim()) {
@@ -47,7 +61,7 @@ const CategoryPage = () => {
     }
 
     return categories?.filter((category) =>
-      category?.name?.toLowerCase().includes(searchTerm.toLowerCase()),
+      category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [categories, searchTerm]);
 
@@ -124,8 +138,9 @@ const CategoryPage = () => {
                 </View>
               </View>
               <FontAwesome6
-                style={{ color: '#999' }}
-                name="angle-right"
+                onPress={() => deleteCategory(element.id)}
+                style={{ color: '#FF2056' }}
+                name="trash"
                 iconStyle="solid"
                 size={22}
               />
@@ -143,24 +158,38 @@ const CategoryPage = () => {
               }}
             >
               <View style={{ alignItems: 'center', paddingBottom: 50 }}>
-                <Text
-                  style={{
-                    fontWeight: '800',
-                    fontSize: 20,
-                    color: '#333',
-                  }}
-                >
-                  Organize your passwords better
-                </Text>
-                <Text
-                  style={{
-                    color: '#999',
-                    textAlign: 'center',
-                  }}
-                >
-                  Add your first category and start organizing all your
-                  passwords securely.
-                </Text>
+                {categories && categories.length > 0 ? (
+                  <Text
+                    style={{
+                      fontWeight: '800',
+                      fontSize: 20,
+                      color: '#333',
+                    }}
+                  >
+                    No categories were found for this search
+                  </Text>
+                ) : (
+                  <View>
+                    <Text
+                      style={{
+                        fontWeight: '800',
+                        fontSize: 20,
+                        color: '#333',
+                      }}
+                    >
+                      Organize your passwords better
+                    </Text>
+                    <Text
+                      style={{
+                        color: '#999',
+                        textAlign: 'center',
+                      }}
+                    >
+                      Add your first category and start organizing all your
+                      passwords securely.
+                    </Text>
+                  </View>
+                )}
               </View>
               <Pressable
                 style={({ pressed }) => [
@@ -198,4 +227,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage;
+export default AllCategoriesPage;
