@@ -11,5 +11,6 @@ import lombok.Setter;
 @Getter
 public class TokenResponseDTO {
   private Long userId;
+  private String userName;
   private String token;
 }
