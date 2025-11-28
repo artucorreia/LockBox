@@ -4,10 +4,12 @@ import { router } from 'expo-router';
 
 export default class Api {
   private url: AxiosInstance;
+  private ip: string = '192.168.2.180';
+  private port: string = '8080';
 
   constructor() {
     this.url = axios.create({
-      baseURL: 'http://10.1.25.72:8080/api', // replace ip
+      baseURL: `http://${this.ip}:${this.port}/api`,
       timeout: 20000,
       headers: {
         'Content-Type': 'application/json',
@@ -30,6 +32,7 @@ export default class Api {
       (response) => response,
       async (error) => {
         if (error.response?.status === 403) {
+          await AsyncStorage.removeItem('user.token')
           router.push('/(auth)/login');
         }
         return Promise.reject(error);

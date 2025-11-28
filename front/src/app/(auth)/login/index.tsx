@@ -1,10 +1,10 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Api from '@/src/services/Api';
 import ApiResponse from '@/src/types/ApiResponse';
 import { View, Text, Pressable, TextInput, Alert } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useForm, Controller, SubmitHandler } from 'react-hook-form';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import Token from '@/src/types/Token';
 
 type FormData = {
@@ -19,6 +19,14 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm<FormData>();
   const api = new Api();
+
+  useFocusEffect(() => {
+    const checkToken = async () => {
+      const token: string | null = await AsyncStorage.getItem('user.token');
+      if (token) router.push('/(main)/home');
+    };
+    checkToken();
+  });
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
     const process = async (data: FormData) => {
