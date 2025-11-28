@@ -65,7 +65,7 @@ public class CategoryServiceImpl implements CategoryService {
   public List<CategoryEntity> findAllWithVaults() {
     log.info("Finding all categories with vaults");
     Long authenticatedUserId = findAuthenticatedUserId();
-    return categoryRepository.findByUserIdAndDeletedFalse(authenticatedUserId);
+    return categoryRepository.findByUserIdAndDeletedFalseAndVaultsDeletedFalse(authenticatedUserId);
   }
 
   @Transactional(rollbackFor = Exception.class)
