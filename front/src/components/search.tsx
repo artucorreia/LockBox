@@ -3,7 +3,10 @@ import React from 'react';
 
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
-const SearchComponent = () => {
+const SearchComponent = (props: {
+  placeholder?: string;
+  onInputChange: (value: string) => void;
+}) => {
   return (
     <View
       style={{
@@ -23,7 +26,8 @@ const SearchComponent = () => {
         size={20}
       />
       <TextInput
-        placeholder="Search for passwords, categories"
+        onChangeText={props.onInputChange}
+        placeholder={props.placeholder || 'Search for passwords, categories'}
         style={{ flex: 1, color: '#333' }}
       />
     </View>

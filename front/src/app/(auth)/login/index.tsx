@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Api from '@/src/services/Api';
 import ApiResponse from '@/src/types/ApiResponse';
-import { router } from 'expo-router';
-import { useForm, Controller, SubmitHandler } from 'react-hook-form';
 import { View, Text, Pressable, TextInput, Alert } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useForm, Controller, SubmitHandler } from 'react-hook-form';
+import { router, useFocusEffect } from 'expo-router';
+import Token from '@/src/types/Token';
 
 type FormData = {
-  name: string;
   email: string;
   password: string;
-  passwordKey: string;
 };
 
-const RegisterUserPage = () => {
+const LoginPage = () => {
   const {
     control,
     handleSubmit,
@@ -20,19 +20,31 @@ const RegisterUserPage = () => {
   } = useForm<FormData>();
   const api = new Api();
 
+  useFocusEffect(() => {
+    const checkToken = async () => {
+      const token: string | null = await AsyncStorage.getItem('user.token');
+      if (token) router.push('/(main)/home');
+    };
+    checkToken();
+  });
+
   const onSubmit: SubmitHandler<FormData> = (data) => {
     const process = async (data: FormData) => {
       try {
-        const response = await api.post<ApiResponse<null>>(
-          '/auth/register',
-          data,
+        const response = await api.post<ApiResponse<Token>>(
+          '/auth/login',
+          data
         );
-        Alert.alert('Success', 'user created successfully');
-        router.push('/(auth)/login');
+        const token: string = response.data?.token || '';
+        const username: string = response.data?.userName || '';
+        AsyncStorage.setItem('user.token', token);
+        AsyncStorage.setItem('user.name', username);
+        router.push('/(main)/home');
       } catch (error) {
-        Alert.alert('Error', 'error creating user');
+        Alert.alert('Error', 'Login error');
       }
     };
+
     process(data);
   };
 
@@ -53,7 +65,7 @@ const RegisterUserPage = () => {
           paddingBottom: 20,
         }}
       >
-        Register
+        Login
       </Text>
 
       <View
@@ -75,56 +87,16 @@ const RegisterUserPage = () => {
           >
             <Controller
               control={control}
-              name="name"
-              rules={{
-                required: 'name filed is mandatory',
-                maxLength: {
-                  value: 50,
-                  message: 'name field must be 2 to 50 characters long',
-                },
-                minLength: {
-                  value: 2,
-                  message: 'name field must be 2 to 50 characters long',
-                },
-              }}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  style={{ width: '100%' }}
-                  maxLength={50}
-                  placeholder="Name"
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-          </View>
-          {errors.name && (
-            <Text style={{ color: '#FF2056' }}>{errors.name.message}</Text>
-          )}
-        </View>
-        <View>
-          <View
-            style={{
-              borderWidth: 1,
-              width: '100%',
-              borderColor: '#e9e9e9',
-              paddingHorizontal: 12,
-              paddingVertical: 4,
-              borderRadius: 12,
-            }}
-          >
-            <Controller
-              control={control}
               name="email"
               rules={{
                 required: 'email filed is mandatory',
                 maxLength: {
                   value: 60,
-                  message: 'email field must be 12 to 60 characters long',
+                  message: 'email field must be 2 to 60 characters long',
                 },
                 minLength: {
-                  value: 12,
-                  message: 'email field must be 12 to 60 characters long',
+                  value: 2,
+                  message: 'email field must be 2 to 60 characters long',
                 },
               }}
               render={({ field: { onChange, value } }) => (
@@ -160,19 +132,19 @@ const RegisterUserPage = () => {
                 required: 'password filed is mandatory',
                 maxLength: {
                   value: 50,
-                  message: 'password field must be 8 to 20 characters long',
+                  message: 'password field must be 8 to 50 characters long',
                 },
                 minLength: {
                   value: 8,
-                  message: 'password field must be 8 to 20 characters long',
+                  message: 'password field must be 8 to 50 characters long',
                 },
               }}
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   secureTextEntry={true}
                   style={{ width: '100%' }}
-                  maxLength={50}
                   placeholder="Password"
+                  maxLength={50}
                   value={value}
                   onChangeText={onChange}
                 />
@@ -181,49 +153,6 @@ const RegisterUserPage = () => {
           </View>
           {errors.password && (
             <Text style={{ color: '#FF2056' }}>{errors.password.message}</Text>
-          )}
-        </View>
-        <View>
-          <View
-            style={{
-              borderWidth: 1,
-              width: '100%',
-              borderColor: '#e9e9e9',
-              paddingHorizontal: 12,
-              paddingVertical: 4,
-              borderRadius: 12,
-            }}
-          >
-            <Controller
-              control={control}
-              name="passwordKey"
-              rules={{
-                required: 'password key filed is mandatory',
-                maxLength: {
-                  value: 20,
-                  message: 'password key field must be 4 to 20 characters long',
-                },
-                minLength: {
-                  value: 4,
-                  message: 'password key field must be 4 to 20 characters long',
-                },
-              }}
-              render={({ field: { onChange, value } }) => (
-                <TextInput
-                  secureTextEntry={true}
-                  style={{ width: '100%' }}
-                  placeholder="Password key"
-                  maxLength={20}
-                  value={value}
-                  onChangeText={onChange}
-                />
-              )}
-            />
-          </View>
-          {errors.passwordKey && (
-            <Text style={{ color: '#FF2056' }}>
-              {errors.passwordKey.message}
-            </Text>
           )}
         </View>
         <Pressable
@@ -245,14 +174,16 @@ const RegisterUserPage = () => {
               fontWeight: '800',
             }}
           >
-            Save
+            Submit
           </Text>
         </Pressable>
         <View>
-          <Text style={{ opacity: 0.7 }}>Already have an account?</Text>
-          <Pressable onPress={() => router.push('/(auth)/login')}>
+          <Text style={{ opacity: 0.7 }}>Don't have account yet?</Text>
+          <Pressable
+            onPress={() => router.push('/(auth)/welcome/registerUser')}
+          >
             <Text style={{ color: '#6c63ff', fontWeight: 800 }}>
-              Sing in here
+              Sing up here
             </Text>
           </Pressable>
         </View>
@@ -261,4 +192,4 @@ const RegisterUserPage = () => {
   );
 };
 
-export default RegisterUserPage;
+export default LoginPage;

@@ -1,11 +1,15 @@
-import { Button, Pressable, Text, View } from 'react-native';
-import React from 'react';
+import { Pressable, Text, View } from 'react-native';
+import React, { useEffect } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 
 import Welcome from '../../../../assets/images/svg/welcome.svg';
 
 const WelcomePage = () => {
+  useEffect(() => {
+    AsyncStorage.setItem('hasSeenWelcome', 'true');
+  }, []);
+
   return (
     <View
       style={{
@@ -46,7 +50,7 @@ const WelcomePage = () => {
             opacity: pressed ? 0.9 : 1,
           },
         ]}
-        onPress={() => router.push('/welcome/registerUser')}
+        onPress={() => router.push('/(auth)/login')}
       >
         <Text
           style={{

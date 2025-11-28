@@ -5,18 +5,31 @@ import br.com.lockbox.api.repositories.projections.CategoryWithoutVaultsProjecti
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface CategoryRepository extends JpaRepository<CategoryEntity, Long> {
-  Optional<CategoryEntity> findByIdAndDeletedFalse(Long id);
+  Optional<CategoryEntity> findByIdAndDeletedFalseAndUserId(Long id, Long userId);
 
-  Optional<CategoryEntity> findByNameIgnoreCaseAndDeletedFalse(String name);
+  Optional<CategoryEntity> findByNameIgnoreCaseAndUserIdAndDeletedFalse(String name, Long userId);
 
-  List<CategoryEntity> findByDeletedFalse();
+  @Query(
+"""
+    SELECT c FROM CategoryEntity c
+    JOIN c.vaults v
+    JOIN c.user u
+    WHERE u.id = :userId
+      AND u.deleted = false
+      AND v.deleted = false
+""")
+  List<CategoryEntity> findByUserIdAndDeletedFalseAndVaultsDeletedFalse(Long userId);
 
-  List<CategoryWithoutVaultsProjection> findAllByAndDeletedFalse();
+  List<CategoryWithoutVaultsProjection> findAllByUserIdAndDeletedFalse(Long userId);
 
-  Page<CategoryWithoutVaultsProjection> findAllByAndDeletedFalse(Pageable pageable);
+  Page<CategoryWithoutVaultsProjection> findAllByUserIdAndDeletedFalse(
+      Long userId, Pageable pageable);
 }

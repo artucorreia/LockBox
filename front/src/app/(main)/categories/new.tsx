@@ -2,7 +2,7 @@ import { View, Text, Pressable, TextInput, Alert } from 'react-native';
 import React from 'react';
 import { Controller, SubmitHandler, useForm } from 'react-hook-form';
 import { router } from 'expo-router';
-import api from '@/src/services/api';
+import Api from '@/src/services/Api';
 import ApiResponse from '@/src/types/ApiResponse';
 
 type FormData = {
@@ -10,6 +10,7 @@ type FormData = {
 };
 
 const NewCategoryPage = () => {
+  const api = new Api();
   const {
     control,
     handleSubmit,
@@ -17,20 +18,18 @@ const NewCategoryPage = () => {
   } = useForm<FormData>();
 
   const onSubmit: SubmitHandler<FormData> = (data) => {
-    api
-      .post<ApiResponse>('/categories', data)
-      .then((response) => {
-        if (response.data.success) {
-          Alert.alert('Success', 'category created successfully');
-          router.push('/(main)/categories');
-          return;
-        }
-
-        Alert.alert('Error', 'error creating category');
+    const process = async (data: FormData) => {
+      try {
+        await api.post<ApiResponse<null>>('/v1/categories', data);
+        Alert.alert('Success', 'category created successfully');
+      } catch (error) {
+        Alert.alert('Error', 'An unexpected error occurred');
+      } finally {
         router.push('/(main)/categories');
-        return;
-      })
-      .catch((error) => console.log(error));
+      }
+    };
+
+    process(data);
   };
 
   return (

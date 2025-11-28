@@ -1,18 +1,21 @@
-import { Image, Pressable, ScrollView, Text, View } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
+import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WelcomeComponent from '@/src/components/welcome';
 import SearchComponent from '@/src/components/search';
 import Category from '../../../types/Category';
 
-import api from '../../../services/api';
+import Api from '@/src/services/Api';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 import AddButtonComponent from '@/src/components/addButton';
 
 import NoCategories from '@/assets/images/svg/no-categories.svg';
 import { router } from 'expo-router';
+import ApiResponse from '@/src/types/ApiResponse';
 
-const CategoryPage = () => {
+const AllCategoriesPage = () => {
+  const api = new Api();
+  const [searchTerm, setSearchTerm] = useState<string>();
   const [categories, setCategories] = useState<Category[]>();
   const formatDate = (value: Date): string => {
     let [date, hours] = value.toString().split('T');
@@ -21,12 +24,45 @@ const CategoryPage = () => {
     return date + ' ' + hours;
   };
 
+  const handleInputChange = (value: string) => setSearchTerm(value);
+
   useEffect(() => {
-    api
-      .get('/categories')
-      .then((response) => setCategories(response.data.data))
-      .catch((error) => console.error('erro na busca: ', error));
+    const process = async () => {
+      try {
+        const categoriesResponse: ApiResponse<Category[]> = await api.get(
+          '/v1/categories'
+        );
+        setCategories(categoriesResponse.data);
+      } catch (error) {
+        Alert.alert('Error', 'An unexpected error occurred');
+      }
+    };
+
+    process();
   }, []);
+  const deleteCategory = async (id?: number) => {
+    if (!id) {
+      Alert.alert('Error', 'An unexpected error occurred');
+    }
+    try {
+      await api.delete(`/v1/categories/${id}`);
+      Alert.alert('Success', 'Category deleted successfully');
+    } catch (error) {
+      Alert.alert('Error', 'An unexpected error occurred');
+    } finally {
+      router.push('/(main)/categories');
+    }
+  };
+
+  const filteredCategories = useMemo(() => {
+    if (!searchTerm?.trim()) {
+      return categories;
+    }
+
+    return categories?.filter((category) =>
+      category?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [categories, searchTerm]);
 
   return (
     <SafeAreaView
@@ -41,14 +77,17 @@ const CategoryPage = () => {
       <View style={{ paddingTop: 5, paddingBottom: 20 }}>
         <WelcomeComponent />
       </View>
-      <SearchComponent />
+      <SearchComponent
+        placeholder="Search for categories"
+        onInputChange={handleInputChange}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 20 }}
       >
-        {categories && categories.length > 0 ? (
-          categories.map((element) => (
+        {filteredCategories && filteredCategories.length > 0 ? (
+          filteredCategories.map((element) => (
             <View
               key={element.id}
               style={{
@@ -98,8 +137,9 @@ const CategoryPage = () => {
                 </View>
               </View>
               <FontAwesome6
-                style={{ color: '#999' }}
-                name="angle-right"
+                onPress={() => deleteCategory(element.id)}
+                style={{ color: '#FF2056' }}
+                name="trash"
                 iconStyle="solid"
                 size={22}
               />
@@ -117,24 +157,38 @@ const CategoryPage = () => {
               }}
             >
               <View style={{ alignItems: 'center', paddingBottom: 50 }}>
-                <Text
-                  style={{
-                    fontWeight: '800',
-                    fontSize: 20,
-                    color: '#333',
-                  }}
-                >
-                  Organize your passwords better
-                </Text>
-                <Text
-                  style={{
-                    color: '#999',
-                    textAlign: 'center',
-                  }}
-                >
-                  Add your first category and start organizing all your
-                  passwords securely.
-                </Text>
+                {categories && categories.length > 0 ? (
+                  <Text
+                    style={{
+                      fontWeight: '800',
+                      fontSize: 20,
+                      color: '#333',
+                    }}
+                  >
+                    No categories were found for this search
+                  </Text>
+                ) : (
+                  <View>
+                    <Text
+                      style={{
+                        fontWeight: '800',
+                        fontSize: 20,
+                        color: '#333',
+                      }}
+                    >
+                      Organize your passwords better
+                    </Text>
+                    <Text
+                      style={{
+                        color: '#999',
+                        textAlign: 'center',
+                      }}
+                    >
+                      Add your first category and start organizing all your
+                      passwords securely.
+                    </Text>
+                  </View>
+                )}
               </View>
               <Pressable
                 style={({ pressed }) => [
@@ -172,4 +226,4 @@ const CategoryPage = () => {
   );
 };
 
-export default CategoryPage;
+export default AllCategoriesPage;

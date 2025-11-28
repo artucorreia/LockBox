@@ -11,9 +11,9 @@ const IndexPage = () => {
     const checkFirstAccess = async () => {
       const hasSeenWelcome = await AsyncStorage.getItem('hasSeenWelcome');
       if (!hasSeenWelcome) {
-        router.replace('/welcome');
+        router.replace('/(auth)/welcome');
       } else {
-        router.replace('/home');
+        router.replace('/(auth)/login');
       }
       setLoading(false);
     };

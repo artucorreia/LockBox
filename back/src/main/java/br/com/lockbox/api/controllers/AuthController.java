@@ -57,7 +57,8 @@ public class AuthController {
       throw new LockBoxException("Error during token generation", HttpStatus.BAD_REQUEST);
     }
 
-    TokenResponseDTO tokenResponseDTO = new TokenResponseDTO(user.getId(), token);
+    TokenResponseDTO tokenResponseDTO =
+        new TokenResponseDTO(user.getId(), user.getName().split(" ")[0], token);
     ResponseDTO<TokenResponseDTO> response =
         new ResponseDTO<>(true, null, HttpStatus.OK.value(), tokenResponseDTO);
     return ResponseEntity.ok(response);

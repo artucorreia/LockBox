@@ -19,7 +19,7 @@ const routes: {
 ];
 
 const RootLayout = () => {
-  const pathName = usePathname();;
+  const pathName = usePathname();
 
   return (
     <View style={{ flex: 1 }}>
@@ -32,22 +32,28 @@ const RootLayout = () => {
         {/* Vaults */}
         <Stack.Screen
           name="vaults/index"
-          options={{ title: 'Vault', headerShown: false }}
+          options={{ title: 'Vaults', headerShown: false }}
         />
         <Stack.Screen
           name="vaults/new"
           options={{ title: 'New Vault', headerShown: false }}
         />
+        <Stack.Screen
+          name="vaults/show"
+          options={{ title: 'Vault', headerShown: false }}
+        />
 
         {/* Categories */}
         <Stack.Screen
           name="categories/index"
-          options={{ title: 'Category', headerShown: false }}
+          options={{ title: 'Categories', headerShown: false }}
         />
         <Stack.Screen
           name="categories/new"
           options={{ title: 'New Category', headerShown: false }}
         />
+
+        {/* Settings */}
         <Stack.Screen
           name="settings/index"
           options={{ title: 'Settings', headerShown: false }}

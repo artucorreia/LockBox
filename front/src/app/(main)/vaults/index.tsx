@@ -1,11 +1,11 @@
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome6 from '@react-native-vector-icons/fontawesome6';
 
 // api
-import api from '@/src/services/api';
+import Api from '@/src/services/Api';
 
 // svgs
 import NoVaults from '@/assets/images/svg/no-vaults.svg';
@@ -17,15 +17,29 @@ import Category from '@/src/types/Category';
 import AddButtonComponent from '@/src/components/addButton';
 import WelcomeComponent from '@/src/components/welcome';
 import SearchComponent from '@/src/components/search';
+import ApiResponse from '@/src/types/ApiResponse';
+import Vault from '@/src/types/Vault';
 
 const VaultPage = () => {
+  const api = new Api();
+  const [searchTerm, setSearchTerm] = useState<string>();
   const [vaultsGrouped, setVaultsGrouped] = useState<Category[]>();
 
+  const handleInputChange = (value: string) => setSearchTerm(value);
+
   useEffect(() => {
-    api
-      .get('/vaults/grouped')
-      .then((response) => setVaultsGrouped(response.data.data))
-      .catch((error) => console.error('vaults error: ', error));
+    const process = async () => {
+      try {
+        const vaultsResponse: ApiResponse<Vault[]> = await api.get(
+          '/v1/vaults/grouped'
+        );
+        setVaultsGrouped(vaultsResponse.data);
+      } catch (error) {
+        Alert.alert('Error', 'An unexpected error occurred');
+      }
+    };
+
+    process();
   }, []);
 
   return (
@@ -41,7 +55,10 @@ const VaultPage = () => {
       <View style={{ paddingTop: 5, paddingBottom: 20 }}>
         <WelcomeComponent />
       </View>
-      <SearchComponent />
+      <SearchComponent
+        placeholder="Search for vaults"
+        onInputChange={handleInputChange}
+      />
 
       <ScrollView
         showsVerticalScrollIndicator={false}
@@ -60,8 +77,14 @@ const VaultPage = () => {
               </Text>
               {element.vaults && element.vaults.length > 0 ? (
                 element.vaults.map((element) => (
-                  <View
+                  <Pressable
                     key={element.id}
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(main)/vaults/show',
+                        params: { id: element.id },
+                      })
+                    }
                     style={{
                       width: '100%',
                       height: 100,
@@ -106,7 +129,7 @@ const VaultPage = () => {
                           {element.username}
                         </Text>
                         <Text style={{ color: '#888', fontSize: 12 }}>
-                          {element.password}
+                          {element.url}
                         </Text>
                       </View>
                     </View>
@@ -116,7 +139,7 @@ const VaultPage = () => {
                       iconStyle="solid"
                       size={22}
                     />
-                  </View>
+                  </Pressable>
                 ))
               ) : (
                 <Text style={{ paddingVertical: 10 }}>No vaults...</Text>
