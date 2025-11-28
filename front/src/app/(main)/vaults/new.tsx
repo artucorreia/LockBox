@@ -129,7 +129,7 @@ const NewVaultPage = () => {
               render={({ field: { onChange, value } }) => (
                 <TextInput
                   style={{ width: '100%' }}
-                  maxLength={20}
+                  maxLength={255}
                   placeholder="Url"
                   value={value}
                   onChangeText={onChange}
