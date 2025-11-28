@@ -3,7 +3,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import WelcomeComponent from '@/src/components/welcome';
 import SearchComponent from '@/src/components/search';
-import CategoryModalComponent from '@/src/components/categoryModal';
 import Category from '../../../types/Category';
 
 import Api from '@/src/services/Api';
